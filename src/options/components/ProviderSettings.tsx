@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnthropicSettings } from './AnthropicSettings';
 import { GeminiSettings } from './GeminiSettings';
+import { LiteLLMSettings, LiteLLMModel } from './LiteLLMSettings';
 import { Model } from './ModelList';
 import { OllamaModel } from './OllamaModelList';
 import { OllamaSettings } from './OllamaSettings';
@@ -58,6 +59,21 @@ interface ProviderSettingsProps {
   handleAddModel: () => void;
   handleRemoveModel: (id: string) => void;
   handleEditModel: (idx: number, field: string, value: any) => void;
+  
+  // LiteLLM settings
+  litellmApiKey: string;
+  setLitellmApiKey: (key: string) => void;
+  litellmProxyUrl: string;
+  setLitellmProxyUrl: (url: string) => void;
+  litellmModelName: string;
+  setLitellmModelName: (name: string) => void;
+  litellmCustomModels: LiteLLMModel[];
+  setLitellmCustomModels: (models: LiteLLMModel[]) => void;
+  newLitellmModel: LiteLLMModel;
+  setNewLitellmModel: React.Dispatch<React.SetStateAction<LiteLLMModel>>;
+  handleAddLitellmModel: () => void;
+  handleRemoveLitellmModel: (id: string) => void;
+  handleEditLitellmModel: (idx: number, field: string, value: any) => void;
 }
 
 export function ProviderSettings({
@@ -106,7 +122,21 @@ export function ProviderSettings({
   setNewModel,
   handleAddModel,
   handleRemoveModel,
-  handleEditModel
+  handleEditModel,
+  // LiteLLM
+  litellmApiKey,
+  setLitellmApiKey,
+  litellmProxyUrl,
+  setLitellmProxyUrl,
+  litellmModelName,
+  setLitellmModelName,
+  litellmCustomModels,
+  setLitellmCustomModels,
+  newLitellmModel,
+  setNewLitellmModel,
+  handleAddLitellmModel,
+  handleRemoveLitellmModel,
+  handleEditLitellmModel
 }: ProviderSettingsProps) {
   return (
     <>
@@ -172,6 +202,24 @@ export function ProviderSettings({
           handleAddModel={handleAddModel}
           handleRemoveModel={handleRemoveModel}
           handleEditModel={handleEditModel}
+        />
+      )}
+      
+      {provider === 'litellm' && (
+        <LiteLLMSettings 
+          litellmApiKey={litellmApiKey}
+          setLitellmApiKey={setLitellmApiKey}
+          litellmProxyUrl={litellmProxyUrl}
+          setLitellmProxyUrl={setLitellmProxyUrl}
+          litellmModelName={litellmModelName}
+          setLitellmModelName={setLitellmModelName}
+          litellmCustomModels={litellmCustomModels}
+          setLitellmCustomModels={setLitellmCustomModels}
+          newLitellmModel={newLitellmModel}
+          setNewLitellmModel={setNewLitellmModel}
+          handleAddLitellmModel={handleAddLitellmModel}
+          handleRemoveLitellmModel={handleRemoveLitellmModel}
+          handleEditLitellmModel={handleEditLitellmModel}
         />
       )}
     </>

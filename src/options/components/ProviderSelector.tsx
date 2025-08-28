@@ -21,6 +21,7 @@ export function ProviderSelector({ provider, setProvider }: ProviderSelectorProp
         <option value="gemini">Google (Gemini)</option>
         <option value="ollama">Ollama</option>
         <option value="openai-compatible">OpenAI Compatible</option>
+        <option value="litellm">LiteLLM Proxy</option>
       </select>
     </div>
   );

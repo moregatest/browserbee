@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GeneralTab } from './tabs/GeneralTab';
 import { ProvidersTab } from './tabs/ProvidersTab';
 import { MemoryTab } from './tabs/MemoryTab';
+import { LiteLLMModel } from './LiteLLMSettings';
 import { Model } from './ModelList';
 import { OllamaModel } from './OllamaModelList';
 
@@ -56,6 +57,21 @@ interface VerticalTabsProps {
   setOpenaiCompatibleModels: (models: Model[]) => void;
   newModel: { id: string; name: string; isReasoningModel: boolean };
   setNewModel: React.Dispatch<React.SetStateAction<{ id: string; name: string; isReasoningModel: boolean }>>;
+  
+  // LiteLLM settings
+  litellmApiKey: string;
+  setLitellmApiKey: (key: string) => void;
+  litellmProxyUrl: string;
+  setLitellmProxyUrl: (url: string) => void;
+  litellmModelName: string;
+  setLitellmModelName: (name: string) => void;
+  litellmCustomModels: LiteLLMModel[];
+  setLitellmCustomModels: (models: LiteLLMModel[]) => void;
+  newLitellmModel: LiteLLMModel;
+  setNewLitellmModel: React.Dispatch<React.SetStateAction<LiteLLMModel>>;
+  handleAddLitellmModel: () => void;
+  handleRemoveLitellmModel: (id: string) => void;
+  handleEditLitellmModel: (idx: number, field: string, value: any) => void;
   
   // Save functionality
   isSaving: boolean;
@@ -132,6 +148,19 @@ export function VerticalTabs(props: VerticalTabsProps) {
             handleAddModel={props.handleAddModel}
             handleRemoveModel={props.handleRemoveModel}
             handleEditModel={props.handleEditModel}
+            litellmApiKey={props.litellmApiKey}
+            setLitellmApiKey={props.setLitellmApiKey}
+            litellmProxyUrl={props.litellmProxyUrl}
+            setLitellmProxyUrl={props.setLitellmProxyUrl}
+            litellmModelName={props.litellmModelName}
+            setLitellmModelName={props.setLitellmModelName}
+            litellmCustomModels={props.litellmCustomModels}
+            setLitellmCustomModels={props.setLitellmCustomModels}
+            newLitellmModel={props.newLitellmModel}
+            setNewLitellmModel={props.setNewLitellmModel}
+            handleAddLitellmModel={props.handleAddLitellmModel}
+            handleRemoveLitellmModel={props.handleRemoveLitellmModel}
+            handleEditLitellmModel={props.handleEditLitellmModel}
             getModelPricingData={props.getModelPricingData}
           />
         );

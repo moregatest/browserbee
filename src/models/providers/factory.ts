@@ -1,13 +1,14 @@
 import { AnthropicProvider } from './anthropic';
 import { GeminiProvider } from './gemini';
+import { LiteLLMProvider, LiteLLMProviderOptions } from './litellm';
 import { OllamaProvider, OllamaProviderOptions } from './ollama';
 import { OpenAIProvider } from './openai';
 import { OpenAICompatibleProvider, OpenAICompatibleProviderOptions } from './openai-compatible';
 import { LLMProvider, ProviderOptions } from './types';
 
 export async function createProvider(
-  provider: 'anthropic' | 'openai' | 'gemini' | 'ollama' | 'openai-compatible',
-  options: ProviderOptions | OpenAICompatibleProviderOptions
+  provider: 'anthropic' | 'openai' | 'gemini' | 'ollama' | 'openai-compatible' | 'litellm',
+  options: ProviderOptions | OpenAICompatibleProviderOptions | LiteLLMProviderOptions
 ): Promise<LLMProvider> {
   switch (provider) {
     case 'anthropic':
@@ -27,6 +28,8 @@ export async function createProvider(
         }
     case 'openai-compatible':
       return new OpenAICompatibleProvider(options as OpenAICompatibleProviderOptions);
+    case 'litellm':
+      return new LiteLLMProvider(options as LiteLLMProviderOptions);
     default:
       throw new Error(`Provider ${provider} not supported`);
   }

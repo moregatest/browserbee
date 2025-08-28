@@ -1,4 +1,5 @@
 import React from 'react';
+import { LiteLLMModel } from '../LiteLLMSettings';
 import { Model } from '../ModelList';
 import { OllamaModel } from '../OllamaModelList';
 import { ProviderSelector } from '../ProviderSelector';
@@ -57,6 +58,21 @@ interface ProvidersTabProps {
   setOpenaiCompatibleModels: (models: Model[]) => void;
   newModel: { id: string; name: string; isReasoningModel: boolean };
   setNewModel: React.Dispatch<React.SetStateAction<{ id: string; name: string; isReasoningModel: boolean }>>;
+  
+  // LiteLLM settings
+  litellmApiKey: string;
+  setLitellmApiKey: (key: string) => void;
+  litellmProxyUrl: string;
+  setLitellmProxyUrl: (url: string) => void;
+  litellmModelName: string;
+  setLitellmModelName: (name: string) => void;
+  litellmCustomModels: LiteLLMModel[];
+  setLitellmCustomModels: (models: LiteLLMModel[]) => void;
+  newLitellmModel: LiteLLMModel;
+  setNewLitellmModel: React.Dispatch<React.SetStateAction<LiteLLMModel>>;
+  handleAddLitellmModel: () => void;
+  handleRemoveLitellmModel: (id: string) => void;
+  handleEditLitellmModel: (idx: number, field: string, value: any) => void;
   
   // Save functionality
   isSaving: boolean;
@@ -123,6 +139,21 @@ export function ProvidersTab({
   setOpenaiCompatibleModels,
   newModel,
   setNewModel,
+  
+  // LiteLLM settings
+  litellmApiKey,
+  setLitellmApiKey,
+  litellmProxyUrl,
+  setLitellmProxyUrl,
+  litellmModelName,
+  setLitellmModelName,
+  litellmCustomModels,
+  setLitellmCustomModels,
+  newLitellmModel,
+  setNewLitellmModel,
+  handleAddLitellmModel,
+  handleRemoveLitellmModel,
+  handleEditLitellmModel,
   
   // Save functionality
   isSaving,
@@ -198,6 +229,20 @@ export function ProvidersTab({
             handleAddModel={handleAddModel}
             handleRemoveModel={handleRemoveModel}
             handleEditModel={handleEditModel}
+            // LiteLLM
+            litellmApiKey={litellmApiKey}
+            setLitellmApiKey={setLitellmApiKey}
+            litellmProxyUrl={litellmProxyUrl}
+            setLitellmProxyUrl={setLitellmProxyUrl}
+            litellmModelName={litellmModelName}
+            setLitellmModelName={setLitellmModelName}
+            litellmCustomModels={litellmCustomModels}
+            setLitellmCustomModels={setLitellmCustomModels}
+            newLitellmModel={newLitellmModel}
+            setNewLitellmModel={setNewLitellmModel}
+            handleAddLitellmModel={handleAddLitellmModel}
+            handleRemoveLitellmModel={handleRemoveLitellmModel}
+            handleEditLitellmModel={handleEditLitellmModel}
           />
           
           <SaveButton 
@@ -207,7 +252,8 @@ export function ProvidersTab({
             isDisabled={
               (provider === 'anthropic' && !anthropicApiKey.trim()) ||
               (provider === 'openai' && !openaiApiKey.trim()) ||
-              (provider === 'gemini' && !geminiApiKey.trim())
+              (provider === 'gemini' && !geminiApiKey.trim()) ||
+              (provider === 'litellm' && (!litellmProxyUrl.trim() || !litellmModelName.trim()))
             }
           />
         </div>

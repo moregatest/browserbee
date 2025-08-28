@@ -1,17 +1,31 @@
 import { AnthropicProvider } from '../models/providers/anthropic';
 import { GeminiProvider } from '../models/providers/gemini';
+import { LiteLLMProvider, LiteLLMProviderOptions } from '../models/providers/litellm';
 import { OllamaProvider, OllamaProviderOptions } from '../models/providers/ollama';
 import { OpenAIProvider } from '../models/providers/openai';
 import { OpenAICompatibleProvider } from '../models/providers/openai-compatible';
 
 export interface ProviderConfig {
-  provider: 'anthropic' | 'openai' | 'gemini' | 'ollama' | 'openai-compatible';
+  provider: 'anthropic' | 'openai' | 'gemini' | 'ollama' | 'openai-compatible' | 'litellm';
   apiKey: string;
   apiModelId?: string;
   baseUrl?: string;
   thinkingBudgetTokens?: number;
   // openai-compatible only
   openaiCompatibleModels?: Array<{ id: string; name: string; isReasoningModel?: boolean }>;
+  // litellm only
+  proxyUrl?: string;
+  modelName?: string;
+  litellmCustomModels?: Array<{
+    id: string;
+    name: string;
+    inputPrice?: number;
+    outputPrice?: number;
+    maxTokens?: number;
+    contextWindow?: number;
+    supportsImages?: boolean;
+    isReasoningModel?: boolean;
+  }>;
 }
 
 export class ConfigManager {
@@ -47,6 +61,11 @@ export class ConfigManager {
       openaiCompatibleModelId: '',
       openaiCompatibleBaseUrl: '',
       openaiCompatibleModels: [],
+      // litellm
+      litellmApiKey: '',
+      litellmProxyUrl: '',
+      litellmModelName: '',
+      litellmCustomModels: [],
     });
     
     // Return provider-specific configuration
@@ -88,6 +107,14 @@ export class ConfigManager {
           baseUrl: result.openaiCompatibleBaseUrl,
           openaiCompatibleModels: result.openaiCompatibleModels || [],
         };
+      case 'litellm':
+        return {
+          provider: 'litellm',
+          apiKey: result.litellmApiKey,
+          proxyUrl: result.litellmProxyUrl,
+          modelName: result.litellmModelName,
+          litellmCustomModels: result.litellmCustomModels || [],
+        };
       default:
         throw new Error(`Provider ${result.provider} not supported`);
     }
@@ -109,6 +136,8 @@ export class ConfigManager {
       ollamaApiKey: '',
       openaiCompatibleApiKey: '',
       openaiCompatibleModels: [],
+      litellmApiKey: '',
+      litellmCustomModels: [],
     });
     
     const providers = [];
@@ -124,6 +153,12 @@ export class ConfigManager {
     }
     
     if (result.openaiCompatibleApiKey && (result.openaiCompatibleModels?.length > 0)) providers.push('openai-compatible');
+    
+    // For LiteLLM, check if proxy URL is configured and at least one custom model exists
+    const litellmProxyUrl = await this.getLiteLLMProxyUrl();
+    if (litellmProxyUrl && result.litellmCustomModels?.length > 0) {
+      providers.push('litellm');
+    }
     
     return providers;
   }
@@ -148,6 +183,10 @@ export class ConfigManager {
         const result = await chrome.storage.sync.get({ openaiCompatibleModels: [] });
         return OpenAICompatibleProvider.getAvailableModels({ openaiCompatibleModels: result.openaiCompatibleModels || [] } as any);
       }
+      case 'litellm': {
+        const result = await chrome.storage.sync.get({ litellmCustomModels: [] });
+        return LiteLLMProvider.getAvailableModels({ customModels: result.litellmCustomModels || [] } as LiteLLMProviderOptions);
+      }
       default:
         return [];
     }
@@ -163,6 +202,16 @@ export class ConfigManager {
     return result.ollamaBaseUrl;
   }
   
+  /**
+   * Get the LiteLLM proxy URL from storage
+   */
+  async getLiteLLMProxyUrl(): Promise<string> {
+    const result = await chrome.storage.sync.get({
+      litellmProxyUrl: '',
+    });
+    return result.litellmProxyUrl;
+  }
+  
   async updateProviderAndModel(provider: string, modelId: string): Promise<void> {
     // Get current config
     const result = await chrome.storage.sync.get({
@@ -171,6 +220,7 @@ export class ConfigManager {
       openaiModelId: 'gpt-4o',
       geminiModelId: 'gemini-1.5-pro',
       ollamaModelId: 'llama3.1',
+      litellmModelName: '',
     });
     
     // Update provider
@@ -189,6 +239,9 @@ export class ConfigManager {
         break;
       case 'ollama':
         await chrome.storage.sync.set({ ollamaModelId: modelId });
+        break;
+      case 'litellm':
+        await chrome.storage.sync.set({ litellmModelName: modelId });
         break;
     }
   }

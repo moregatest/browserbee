@@ -12,6 +12,7 @@ import {
 
 // Import components
 import { VerticalTabs } from './components/VerticalTabs';
+import { LiteLLMModel } from './components/LiteLLMSettings';
 import { Model } from './components/ModelList';
 import { OllamaModel } from './components/OllamaModelList';
 
@@ -87,6 +88,22 @@ export function Options() {
   const [openaiCompatibleModels, setOpenaiCompatibleModels] = useState<Model[]>([]);
   const [newModel, setNewModel] = useState({ id: '', name: '', isReasoningModel: false });
 
+  // LiteLLM provider related state
+  const [litellmApiKey, setLitellmApiKey] = useState('');
+  const [litellmProxyUrl, setLitellmProxyUrl] = useState('');
+  const [litellmModelName, setLitellmModelName] = useState('');
+  const [litellmCustomModels, setLitellmCustomModels] = useState<LiteLLMModel[]>([]);
+  const [newLitellmModel, setNewLitellmModel] = useState<LiteLLMModel>({
+    id: '',
+    name: '',
+    inputPrice: 0.01,
+    outputPrice: 0.03,
+    maxTokens: 4096,
+    contextWindow: 8192,
+    supportsImages: false,
+    isReasoningModel: false
+  });
+
   // Load saved settings when component mounts
   useEffect(() => {
     chrome.storage.sync.get({
@@ -109,6 +126,10 @@ export function Options() {
       openaiCompatibleBaseUrl: '',
       openaiCompatibleModelId: '',
       openaiCompatibleModels: [],
+      litellmApiKey: '',
+      litellmProxyUrl: '',
+      litellmModelName: '',
+      litellmCustomModels: [],
     }, (result) => {
       
       setProvider(result.provider);
@@ -130,6 +151,10 @@ export function Options() {
       setOpenaiCompatibleBaseUrl(result.openaiCompatibleBaseUrl || '');
       setOpenaiCompatibleModelId(result.openaiCompatibleModelId || '');
       setOpenaiCompatibleModels(result.openaiCompatibleModels || []);
+      setLitellmApiKey(result.litellmApiKey || '');
+      setLitellmProxyUrl(result.litellmProxyUrl || '');
+      setLitellmModelName(result.litellmModelName || '');
+      setLitellmCustomModels(result.litellmCustomModels || []);
     });
   }, []);
 
@@ -158,6 +183,10 @@ export function Options() {
       openaiCompatibleBaseUrl,
       openaiCompatibleModelId,
       openaiCompatibleModels,
+      litellmApiKey,
+      litellmProxyUrl,
+      litellmModelName,
+      litellmCustomModels,
     }, () => {
       
       setIsSaving(false);
@@ -225,6 +254,49 @@ export function Options() {
     setOpenaiCompatibleModels(models => models.map((m, i) => i === idx ? { ...m, [field]: value } : m));
   };
 
+  // LiteLLM model list operations
+  const handleAddLitellmModel = () => {
+    if (!newLitellmModel.id.trim() || !newLitellmModel.name.trim()) return;
+    
+    const updatedModels = [...litellmCustomModels, { ...newLitellmModel }];
+    setLitellmCustomModels(updatedModels);
+    setNewLitellmModel({
+      id: '',
+      name: '',
+      inputPrice: 0.01,
+      outputPrice: 0.03,
+      maxTokens: 4096,
+      contextWindow: 8192,
+      supportsImages: false,
+      isReasoningModel: false
+    });
+    
+    // Save changes immediately to update the model list
+    chrome.storage.sync.set({ litellmCustomModels: updatedModels });
+  };
+  
+  const handleRemoveLitellmModel = (id: string) => {
+    const updatedModels = litellmCustomModels.filter(m => m.id !== id);
+    setLitellmCustomModels(updatedModels);
+    if (litellmModelName === id) setLitellmModelName('');
+    
+    // Save changes immediately to update the model list
+    chrome.storage.sync.set({ litellmCustomModels: updatedModels });
+  };
+  
+  const handleEditLitellmModel = (idx: number, field: string, value: any) => {
+    let updatedModels: LiteLLMModel[] = [];
+    setLitellmCustomModels(models => {
+      updatedModels = models.map((m, i) => i === idx ? { ...m, [field]: value } : m);
+      return updatedModels;
+    });
+    
+    // Save changes after state update using a timeout to ensure state is updated
+    setTimeout(() => {
+      chrome.storage.sync.set({ litellmCustomModels: updatedModels });
+    }, 0);
+  };
+
   return (
     <VerticalTabs
       // Provider selection
@@ -280,6 +352,20 @@ export function Options() {
       handleAddModel={handleAddModel}
       handleRemoveModel={handleRemoveModel}
       handleEditModel={handleEditModel}
+      // LiteLLM
+      litellmApiKey={litellmApiKey}
+      setLitellmApiKey={setLitellmApiKey}
+      litellmProxyUrl={litellmProxyUrl}
+      setLitellmProxyUrl={setLitellmProxyUrl}
+      litellmModelName={litellmModelName}
+      setLitellmModelName={setLitellmModelName}
+      litellmCustomModels={litellmCustomModels}
+      setLitellmCustomModels={setLitellmCustomModels}
+      newLitellmModel={newLitellmModel}
+      setNewLitellmModel={setNewLitellmModel}
+      handleAddLitellmModel={handleAddLitellmModel}
+      handleRemoveLitellmModel={handleRemoveLitellmModel}
+      handleEditLitellmModel={handleEditLitellmModel}
       // Pricing data
       getModelPricingData={getModelPricingData}
     />
